@@ -10,6 +10,8 @@ import AcademySection from "../containers/pmu/AcademySection";
 import TheorySection from "../containers/pmu/TheorySection";
 import ContactSection from "../containers/pmu/ContactSection";
 import HeroSection from "../containers/pmu/Hero";
+import AppointmentCTA from "../containers/pmu/AppointmentCTA";
+import ConcernsSection from "../containers/pmu/ConcernsSection";
 
 const poiret = Poiret_One({
     weight: ["400"],
@@ -21,13 +23,15 @@ export default function PMUPage() {
         <>
             <HeroSection />
             <div className="bg-[#FEFBF4]">
-                {/* <AboutSection />
-                <ArtistWorks />
+                {/* <AboutSection /> */}
+                {/* <ArtistWorks /> */}
+                <AppointmentCTA/>
                 <ServicesSection />
-                <ArtistSection />
-                <AcademySection />
-                <TheorySection />
-                <ContactSection /> */}
+                <ConcernsSection/>
+                {/* <ArtistSection /> */}
+                {/* <AcademySection /> */}
+                {/* <TheorySection /> */}
+                {/* <ContactSection /> */}
             </div>
         </ >
     );

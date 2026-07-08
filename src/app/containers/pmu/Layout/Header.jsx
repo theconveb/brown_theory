@@ -48,7 +48,7 @@ export default function Header() {
                 top: `${headerHeight}px`,
                 height: `calc(100dvh - ${headerHeight}px)`,
             }}
-            className={`fixed left-0 right-0 bg-zinc-950/95 backdrop-blur-lg flex flex-col justify-between p-8 md:p-12 z-[999] transition-all duration-300 ease-in-out overflow-y-auto ${
+            className={`fixed left-0 right-0  backdrop-blur-lg flex flex-col justify-between p-8 md:p-12 z-[999] transition-all duration-300 ease-in-out overflow-y-auto ${
                 isOpen
                     ? 'translate-y-0 opacity-100 pointer-events-auto'
                     : 'translate-y-[-100%] opacity-0 pointer-events-none'
@@ -99,7 +99,7 @@ export default function Header() {
         <>
             <header
                 ref={headerRef}
-                className="w-full bg-zinc-950 text-zinc-100 border-b border-zinc-900 px-4 py-3 fixed top-0 left-0 right-0 z-50"
+                className="w-full  text-zinc-100 border-b border-zinc-900 px-4 py-3 fixed top-0 left-0 right-0 z-50"
             >
                 <div className="max-w-7xl mx-auto flex items-center justify-between relative">
 
@@ -146,8 +146,6 @@ export default function Header() {
                 </div>
             </header>
 
-            {/* Spacer so page content doesn't get hidden under the fixed header */}
-            <div style={{ height: `${headerHeight}px` }} />
 
             {/* Menu is portaled directly to <body>, escaping the header's
                 fixed positioning context entirely. This avoids a well-known

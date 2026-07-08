@@ -1,28 +1,171 @@
-import Link from "next/link";
+'use client';
+import Image from 'next/image';
+import React, { useRef, useCallback } from 'react';
 
-const IMAGES = [
-  "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&q=80",
-  "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&q=80",
-  "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=800&q=80",
-  "https://images.unsplash.com/photo-1526045612212-70caf35c14df?w=800&q=80",
-  "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800&q=80",
-  "https://images.unsplash.com/photo-1503236823255-94609f598e71?w=800&q=80",
+const SOLUTIONS = [
+    {
+        label: 'Hair transplant',
+        image: 'https://images.unsplash.com/photo-1520975954732-35dd22299614?w=800&q=80',
+    },
+    {
+        label: 'Injections',
+        image: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=800&q=80',
+    },
+    {
+        label: 'Aesthetic medicine',
+        image: 'https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=800&q=80',
+    },
+    {
+        label: 'Permanent hair removal',
+        image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=800&q=80',
+    },
+    {
+        label: 'Skin resurfacing',
+        image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80',
+    },
+    {
+        label: 'Body contouring',
+        image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&q=80',
+    },
 ];
 
+// Repeat the set enough times that the visible window never runs out of
+// cards in either scroll direction — this is what makes the loop feel truly
+// infinite rather than just "scrolls to the end and stops".
+const LOOPS = 4;
+const LOOPED_SOLUTIONS = Array.from({ length: LOOPS }, () => SOLUTIONS).flat();
+
 export default function ServicesSection() {
-  return (
-    <div className="w-full">
-      <p className="text-[10px] tracking-widest uppercase text-gray-500 mb-4">Services</p>
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 ">
-        {IMAGES.map((src, i) => (
-          <Link key={i} href={`/PMU/${i + 1}`} className="overflow-hidden w-full">
-            <img src={src} alt={`Service ${i + 1}`} className="w-full h-72 md:w-[480px] md:h-[600px] object-cover" />
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
+    const trackRef = useRef(null);
+
+    // Keeps the scroll position pinned to the middle copy of the loop.
+    // When the user scrolls near either edge of the duplicated list, we
+    // silently jump back to the equivalent position in the middle copy —
+    // same visual spot, no snap-back the eye can catch.
+    const normalizeScroll = useCallback(() => {
+        const track = trackRef.current;
+        if (!track) return;
+        const singleSetWidth = track.scrollWidth / LOOPS;
+        if (track.scrollLeft < singleSetWidth * 0.5) {
+            track.scrollLeft += singleSetWidth;
+        } else if (track.scrollLeft > singleSetWidth * (LOOPS - 1.5)) {
+            track.scrollLeft -= singleSetWidth;
+        }
+    }, []);
+
+    const scrollByCard = (direction) => {
+        const track = trackRef.current;
+        if (!track) return;
+        const card = track.querySelector('[data-card]');
+        const cardWidth = card ? card.getBoundingClientRect().width : 300;
+        const gap = 16;
+        track.scrollBy({ left: direction * (cardWidth + gap), behavior: 'smooth' });
+    };
+
+    // Start the track roughly centered in the middle copy on mount
+    const setInitialScroll = useCallback((node) => {
+        trackRef.current = node;
+        if (node) {
+            const singleSetWidth = node.scrollWidth / LOOPS;
+            node.scrollLeft = singleSetWidth * Math.floor(LOOPS / 2);
+        }
+    }, []);
+
+    return (
+        <section className="w-full min-h-screen bg-[#F3EEE3] px-4 sm:px-8 flex items-center justify-center pb-20">
+            <div className="max-w-[1600px] w-full mx-auto">
+
+                {/* Track */}
+                <div
+                    ref={setInitialScroll}
+                    onScroll={normalizeScroll}
+                    className="flex gap-4 overflow-x-auto scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                >
+                    {LOOPED_SOLUTIONS.map((item, i) => (
+                        <div
+                            key={i}
+                            data-card
+                            className="group relative shrink-0 w-[78vw] xs:w-[60vw] sm:w-[45vw] md:w-[32vw] lg:w-[23vw] xl:w-[30vw]"
+                        >
+                            <div className="relative aspect-[3/4] overflow-hidden bg-[#e5ddc8]">
+                                <Image
+                                    src={item.image}
+                                    alt={item.label}
+                                    fill
+                                    sizes="(max-width: 768px) 60vw, 20vw"
+                                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                                    draggable={false}
+                                    priority={i < 4}
+                                />
+                            </div>
+                            <p className="mt-4 text-[15px] text-[#1a1a1a] tracking-wide">
+                                {item.label}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Controls */}
+                <div className="flex flex-col items-center gap-8 mt-12">
+                    <div className="flex items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={() => scrollByCard(-1)}
+                            aria-label="Previous solution"
+                            className="h-11 w-11 rounded-full border border-[#1a1a1a]/30 flex items-center justify-center text-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-[#F3EEE3] transition-colors duration-200"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 12H5m0 0l6-6m-6 6l6 6" />
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => scrollByCard(1)}
+                            aria-label="Next solution"
+                            className="h-11 w-11 rounded-full border border-[#1a1a1a]/30 flex items-center justify-center text-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-[#F3EEE3] transition-colors duration-200"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M5 12h14m0 0l-6-6m6 6l-6 6" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <button
+                        type="button"
+                        className="px-7 py-3 rounded-full border border-[#1a1a1a]/30 text-[13px] tracking-[0.15em] uppercase text-[#3454D1] hover:bg-[#1a1a1a] hover:text-[#F3EEE3] hover:border-[#1a1a1a] transition-colors duration-200"
+                    >
+                        See all solutions
+                    </button>
+                </div>
+            </div>
+        </section>
+    );
 }
+// import Link from "next/link";
+
+// const IMAGES = [
+//   "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&q=80",
+//   "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&q=80",
+//   "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=800&q=80",
+//   "https://images.unsplash.com/photo-1526045612212-70caf35c14df?w=800&q=80",
+//   "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800&q=80",
+//   "https://images.unsplash.com/photo-1503236823255-94609f598e71?w=800&q=80",
+// ];
+
+// export default function ServicesSection() {
+//   return (
+//     <div className="w-full">
+//       <p className="text-[10px] tracking-widest uppercase text-gray-500 mb-4">Services</p>
+//       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 ">
+//         {IMAGES.map((src, i) => (
+//           <Link key={i} href={`/PMU/${i + 1}`} className="overflow-hidden w-full">
+//             <img src={src} alt={`Service ${i + 1}`} className="w-full h-72 md:w-[480px] md:h-[600px] object-cover" />
+//           </Link>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// }
 // import React from 'react';
 // import { Playfair_Display } from 'next/font/google';
 
